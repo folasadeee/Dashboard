@@ -1,33 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+import { useEffect, useState } from 'react'
 import viteLogo from '/vite.svg'
 import './App.css'
 
+const API_KEY = import.meta.env.VITE_API_KEY;
+const HASH = import.meta.env.VITE_HASH;
+
 function App() {
-  const [count, setCount] = useState(0)
+
+  const [list, setList] = useState(null);
+
+  useEffect(() => {
+    const fetchAllCharacters = async () => {
+      try {
+        const response = await fetch(
+          `https://gateway.marvel.com:443/v1/public/characters?ts=1&apikey=${API_KEY}&hash=${HASH}`
+        );
+        const json = await response.json();
+        setList(json);
+      } catch (error) {
+        console.error('Error fetching characters:', error);
+      }
+    };
+  
+    fetchAllCharacters();
+  }, []);
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <main className="characters">
+      <h1>Marvel Characters</h1>
+ 
+   <ul>
+          {list && list.data.results.map((character) => (
+            <li key={character.id}>{character.name}</li>
+          ))}
+        </ul>
+
+    </main>
     </>
   )
 }
